@@ -28,6 +28,7 @@ public class DbConnection {
             throw new DbException(e);
 
             return java.sql.Connection;
+//            The assignment says to return java.sql.Connection but it comes up as an error
         }
     }
 }
