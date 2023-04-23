@@ -13,9 +13,9 @@ public class DbConnection {
     private static final String SCHEMA = "projects";
     private static final String USER = "projects";
 
-    public static Connection getConnection() {
+    public static java.sql.Connection getConnection() {
 
-        String uri = String.format("jdbc:mysql://%s:%d/%s?user=%&password%s useSSL=false", HOST, PORT, SCHEMA, USER, PASSWORD);
+        String uri = String.format("jdbc:mysql://%s:%d/%s?user=%s&password=%s&useSSL=false", HOST, PORT, SCHEMA, USER, PASSWORD);
 
         System.out.println("Connecting with url = " + uri);
 
@@ -26,9 +26,6 @@ public class DbConnection {
         } catch (SQLException e) {
             System.out.println("Error getting connection");
             throw new DbException(e);
-
-            return java.sql.Connection;
-//            The assignment says to return java.sql.Connection but it comes up as an error
         }
     }
 }
