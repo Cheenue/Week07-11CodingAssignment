@@ -1,4 +1,4 @@
-package projects.dao;
+package projects.exception;
 
 import projects.exception.DbException;
 
