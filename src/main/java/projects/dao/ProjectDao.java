@@ -6,7 +6,11 @@ import projects.exception.DbException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
+
 import provided.util.DaoBase;
 
 public class ProjectDao extends DaoBase {
@@ -49,6 +53,32 @@ public class ProjectDao extends DaoBase {
             }
         } catch (SQLException e) {
             throw new DbException();
+        }
+    }
+
+    public List<Project> fetchAllProjects() {
+        String sql = "SELECT * FROM " + PROJECT_TABLE + " ORDER BY project_name";
+
+        try(Connection conn = DbConnection.getConnection()) { //this was red underline because it needed a catch clause
+            startTransaction(conn); //this was red for the same reason as above
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                try(ResultSet rs = stmt.executeQuery()) {
+                    List<Project> projects = new LinkedList<>();
+
+                    while(rs.next()) {
+                        projects.add(extract(rs, Project.class)); //these are the parameters
+                    }
+                    return projects;
+                }
+            }
+            catch (Exception e) {
+                rollbackTransaction(conn); //if it catches an exception, it will rollback all the changes
+                throw new DbException(e);
+            }
+        }
+        catch(SQLException e) {
+            throw new DbException(e);
         }
     }
 }
