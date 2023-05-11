@@ -67,7 +67,15 @@ public class ProjectDao extends DaoBase {
                     List<Project> projects = new LinkedList<>();
 
                     while(rs.next()) {
-                        projects.add(extract(rs, Project.class)); //these are the parameters
+                        Project project = new Project();
+
+                        project.setActualHours(rs.getBigDecimal("actual_hours"));
+                        project.setDifficulty(rs.getObject("difficulty", Integer.class));
+                        project.setEstimatedHours(rs.getBigDecimal("estimated_hours"));
+                        project.setNotes(rs.getString("notes"));
+                        project.setProjectId(rs.getObject("project_id", Integer.class));
+                        project.setProjectName(rs.getString("project_name"));
+
                     }
                     return projects;
                 }

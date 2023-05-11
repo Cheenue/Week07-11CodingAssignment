@@ -10,7 +10,6 @@ public class ProjectService {
 
     public Project addProject (Project project) {
         return project;
-//        return projectDao.insertProject(project);
     }
 
     public List<Project> fetchAllProjects() {
