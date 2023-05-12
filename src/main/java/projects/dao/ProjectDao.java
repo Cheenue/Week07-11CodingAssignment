@@ -72,16 +72,12 @@ public class ProjectDao extends DaoBase {
                     List<Project> projects = new LinkedList<>();
 
                     while (rs.next()) {
+                        Project projectTemp = new Project();
 
-//                        Project project = new Project();
-//
-//                        project.setActualHours(rs.getBigDecimal("actual_hours"));
-//                        project.setDifficulty(rs.getObject("difficulty", Integer.class));
-//                        project.setEstimatedHours(rs.getBigDecimal("estimated_hours"));
-//                        project.setNotes(rs.getString("notes"));
-//                        project.setProjectId(rs.getObject("project_id", Integer.class));
-//                        project.setProjectName(rs.getString("project_name"));
+                        projectTemp.setProjectId(rs.getObject("project_id", Integer.class));
+                        projectTemp.setProjectName(rs.getString("project_name"));
 
+                        projects.add(projectTemp);
                     }
                     return projects;
                 }
@@ -101,27 +97,29 @@ public class ProjectDao extends DaoBase {
             startTransaction(conn); //this was red for the same reason as above
 
             try {
-                Project project = null;
+                Project project2 = null;
 
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                     setParameter(stmt, 1, projectId, Integer.class);
 
                     try (ResultSet rs = stmt.executeQuery()) {
                         if (rs.next()) {
-                            project = extract(rs, Project.class);
+                            project2 = new Project();
+                            project2.setProjectId(rs.getObject("project_id", Integer.class));
+                            project2.setProjectName(rs.getString("project_name"));
                         }
                     }
                 }
 
-                if (Objects.nonNull(project)) {
-                    project.getMaterials().addAll(fetchMaterialsForProject(conn, projectId));
-                    project.getSteps().addAll(fetchStepsForProject(conn, projectId));
-                    project.getCategories().addAll(fetchCategoriesForProject(conn, projectId));
+                if (Objects.nonNull(project2)) {
+                    project2.getMaterials().addAll(fetchMaterialsForProject(conn, projectId));
+                    project2.getSteps().addAll(fetchStepsForProject(conn, projectId));
+                    project2.getCategories().addAll(fetchCategoriesForProject(conn, projectId));
                 }
 
                 commitTransaction(conn);
 
-                return Optional.ofNullable(project);
+                return Optional.ofNullable(project2);
             } catch (Exception e) {
                 rollbackTransaction(conn);
                 throw new DbException(e);

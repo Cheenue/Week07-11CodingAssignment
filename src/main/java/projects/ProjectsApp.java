@@ -62,12 +62,17 @@ public class ProjectsApp {
     }
 
     private void selectProject() {
-        listProjects();
         Integer projectId = getIntInput("Enter a project ID to select a project");
 
         curProject = null;
 
         curProject = projectService.fetchProjectById(projectId);
+
+        if(Objects.isNull(curProject)) {
+            System.out.println("\nYou are not working with a project.");
+        } else {
+            System.out.println("\nYou are working with a project: " + curProject);
+        }
     }
 
 
