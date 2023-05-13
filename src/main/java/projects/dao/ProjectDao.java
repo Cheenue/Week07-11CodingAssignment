@@ -52,7 +52,7 @@ public class ProjectDao extends DaoBase {
 
                 project.setProjectId(projectId);
                 return project;
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 rollbackTransaction(conn);
                 throw new RuntimeException(e);
             }
@@ -74,6 +74,10 @@ public class ProjectDao extends DaoBase {
                     while (rs.next()) {
                         Project projectTemp = new Project();
 
+                        projectTemp.setActualHours(rs.getBigDecimal("actual_hours"));
+                        projectTemp.setDifficulty(rs.getObject("difficulty", Integer.class));
+                        projectTemp.setEstimatedHours(rs.getBigDecimal("estimated_hours"));
+                        projectTemp.setNotes(rs.getString("notes"));
                         projectTemp.setProjectId(rs.getObject("project_id", Integer.class));
                         projectTemp.setProjectName(rs.getString("project_name"));
 

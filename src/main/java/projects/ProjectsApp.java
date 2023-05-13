@@ -55,6 +55,7 @@ public class ProjectsApp {
                     break;
                 }
             }
+
             catch (Exception e) {
                 System.out.println("\nError: " + e + "Try again.");
             }
@@ -62,6 +63,8 @@ public class ProjectsApp {
     }
 
     private void selectProject() {
+        listProjects();
+
         Integer projectId = getIntInput("Enter a project ID to select a project");
 
         curProject = null;
@@ -108,8 +111,8 @@ public class ProjectsApp {
     }
 
     private void printOperations() {
-        System.out.println("\nThese are the available selections. Press the Enter key to quit.");
-        operations.forEach(line -> System.out.println(" " + line));
+        System.out.println("\nThese are the available selections. Press the Enter key to quit:");
+        operations.forEach(line -> System.out.println("  " + line));
 
         if(Objects.isNull(curProject)) {
             System.out.println("\nYou are not working with a project.");
