@@ -52,7 +52,7 @@ public class ProjectDao extends DaoBase {
 
                 project.setProjectId(projectId);
                 return project;
-            } catch (Exception e) {
+            } catch (SQLException e) {
                 rollbackTransaction(conn);
                 throw new RuntimeException(e);
             }
@@ -94,6 +94,8 @@ public class ProjectDao extends DaoBase {
         }
     }
 
+
+
     public Optional<Project> fetchProjectById(Integer projectId) {
         String sql = "SELECT * FROM " + PROJECT_TABLE + " WHERE project_id = ?";
 
@@ -103,12 +105,19 @@ public class ProjectDao extends DaoBase {
             try {
                 Project project2 = null;
 
-                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) { //prepared statement is a sql query is passed as a parameter
                     setParameter(stmt, 1, projectId, Integer.class);
 
                     try (ResultSet rs = stmt.executeQuery()) {
                         if (rs.next()) {
                             project2 = new Project();
+                            project2.setProjectId(rs.getObject("project_id", Integer.class));
+                            project2.setProjectName(rs.getString("project_name"));
+
+                            project2.setActualHours(rs.getBigDecimal("actual_hours"));
+                            project2.setDifficulty(rs.getObject("difficulty", Integer.class));
+                            project2.setEstimatedHours(rs.getBigDecimal("estimated_hours"));
+                            project2.setNotes(rs.getString("notes"));
                             project2.setProjectId(rs.getObject("project_id", Integer.class));
                             project2.setProjectName(rs.getString("project_name"));
                         }
@@ -133,7 +142,7 @@ public class ProjectDao extends DaoBase {
         }
     }
 
-    private List<Category> fetchCategoriesForProject(Connection conn, Integer projectId) throws SQLException{
+    private List<Category> fetchCategoriesForProject(Connection conn, Integer projectId) throws SQLException {
         //formatter:off
         String sql = ""
                 + "SELECT c.* FROM " + CATEGORY_TABLE + " c "
@@ -186,6 +195,64 @@ public class ProjectDao extends DaoBase {
                     materials.add(extract(rs, Material.class));
                 }
                 return materials;
+            }
+        }
+    }
+
+    public boolean modifyProjectDetails(Project project) {
+        //@formatter:off
+        String sql = ""
+                + "UPDATE " + PROJECT_TABLE + " SET "
+                + "project_name = ?, "
+                + "estimated_hours = ?, "
+                + "actual_hours = ?. "
+                + "difficulty = ?, "
+                + "notes = ? "
+                + "WHERE project_id = ?";
+        //@formatter:on
+
+        try (Connection conn = DbConnection.getConnection()) {
+            startTransaction(conn);
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                setParameter(stmt, 1, project.getProjectName(), String.class);
+                setParameter(stmt, 2, project.getEstimatedHours(), BigDecimal.class);
+                setParameter(stmt, 3, project.getActualHours(), BigDecimal.class);
+                setParameter(stmt, 4, project.getDifficulty(), Integer.class);
+                setParameter(stmt, 5, project.getNotes(), String.class);
+                setParameter(stmt, 6, project.getProjectId(), Integer.class);
+
+                boolean modified = stmt.executeUpdate() == 1;
+                commitTransaction(conn);
+
+                return modified;
+            } catch (Exception e) {
+                rollbackTransaction(conn);
+                throw new DbException(e);
+            }
+        } catch (SQLException e) {
+            throw new DbException(e);
+        }
+    }
+
+    public boolean deleteProject(Integer projectId) throws SQLException {
+        String sql = "DELETE FROM " + PROJECT_TABLE + " WHERE project_id = ?";
+
+        try (Connection conn = DbConnection.getConnection()) {
+            startTransaction(conn);
+            //this is trying to start a connection
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                //prepared statement is sending the SQL statements to the database
+                setParameter(stmt, 1, projectId, Integer.class);
+
+                boolean deleted = stmt.executeUpdate() == 1;
+
+                commitTransaction(conn);
+                return deleted;
+            } catch (Exception e) {
+                rollbackTransaction(conn);
+                throw new DbException(e);
             }
         }
     }
